@@ -1,0 +1,20 @@
+#include <PRIZM.h>
+PRIZM prizm;
+
+void setup() {
+  prizm.PrizmBegin();
+  Serial.begin(9600);
+  pinMode(3, INPUT);
+  pinMode(4, INPUT);
+  pinMode(5, INPUT);
+}
+
+void loop() {
+   if (digitalRead(5)==HIGH){
+    prizm.setMotorSpeed(1,540);
+   } else if (digitalRead(4)==HIGH){
+    prizm.setMotorSpeed(1,0);
+   } else if (digitalRead(3)==HIGH){
+    prizm.setMotorSpeed(1,-540);
+   }
+}
