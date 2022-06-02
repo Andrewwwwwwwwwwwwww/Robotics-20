@@ -19,7 +19,7 @@ void setup() {
 
   prizm.PrizmBegin();         // initialize the PRIZM controller
   Serial.begin(9600);
-  prizm.setMotorInvert(2,1);
+  motor.setMotorInvert(1,2,1);
   ps4.setDeadZone (LEFT,10);
   ps4.setDeadZone(RIGHT,10);
 }
@@ -27,32 +27,37 @@ void setup() {
 void loop() {    
   ps4.getPS4();
   if(ps4.Connected){
-   BaseMove();
-   Shifter();
+    if (prizm.readLineSensor(2)==1){
+      prizm.setMotorPower(1,100);delay(1000);
+    }
+    BaseMove();
+    shoot();
+    Shifter();
    } else {
     prizm.PrizmEnd();
    }
 }
 
 void BaseMove(){
-    if(ps4.Button(UP)==1){
-      motor.setMotorSpeeds(1,720,720);delay(200);
-  } else {
-    
-    int motor1 = ps4.Motor(LY);
-    int motor2 = ps4.Motor(RY);
-    
-    motor.setMotorPowers(1,motor1*currentS,motor2*currentS);
-  } 
-//  if(ps4.Button(L2)==1){ // did not find the proper degrees yet for a 90 degree pivot
-//    motor.resetEncoders(1);
-//    motor.setMotorDegrees(1,360,-70,360,70);delay(1200); 
-//  }
-//  if(ps4.Button(R2)==1){
-//    motor.resetEncoders(1);
-//    motor.setMotorDegrees(1,360,70,360,-70);delay(1200);
-//  }
 
+     if(ps4.Button(UP)==1){
+        motor.setMotorSpeeds(1,720,720);delay(200);
+    } else {
+      
+      int motor1 = ps4.Motor(LY);
+      int motor2 = ps4.Motor(RY);
+      
+      motor.setMotorPowers(1,motor1*currentS,motor2*currentS);
+    }
+ 
+  //  if(ps4.Button(L2)==1){ // did not find the proper degrees yet for a 90 degree pivot
+  //    motor.resetEncoders(1);
+  //    motor.setMotorDegrees(1,360,-70,360,70);delay(1200); 
+  //  }
+  //  if(ps4.Button(R2)==1){
+  //    motor.resetEncoders(1);
+  //    motor.setMotorDegrees(1,360,70,360,-70);delay(1200);
+  //  }
 }
 
 void Shifter(){
@@ -81,5 +86,13 @@ void Shifter(){
       currentS = speed4;
       ps4.setLED(RED);
       break;
+  }
+}
+
+void shoot(){
+  if (ps4.Button(R2)==1){
+    prizm.setMotorPower(1,100);
+  } else {
+    prizm.setMotorPower(1,0);
   }
 }
