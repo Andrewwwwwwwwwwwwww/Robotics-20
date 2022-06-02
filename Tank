@@ -1,0 +1,85 @@
+#include <PRIZM.h>    // include the PRIZM library in the sketch
+#include <TELEOP.h>
+
+PRIZM prizm;          // instantiate a PRIZM object “prizm” so we can use its functions
+PS4 ps4;
+EXPANSION motor;
+
+float detDis = 2.5;
+int servoPos = 120;
+int ms = 40; 
+float speed1 = 0.15;
+float speed2 = 0.3;
+float speed3 = 0.5;
+float speed4 = 1;
+float currentS = speed2;
+int shift = speed2;
+
+void setup() {
+
+  prizm.PrizmBegin();         // initialize the PRIZM controller
+  Serial.begin(9600);
+  prizm.setMotorInvert(2,1);
+  ps4.setDeadZone (LEFT,10);
+  ps4.setDeadZone(RIGHT,10);
+}
+
+void loop() {    
+  ps4.getPS4();
+  if(ps4.Connected){
+   BaseMove();
+   Shifter();
+   } else {
+    prizm.PrizmEnd();
+   }
+}
+
+void BaseMove(){
+    if(ps4.Button(UP)==1){
+      motor.setMotorSpeeds(1,720,720);delay(200);
+  } else {
+    
+    int motor1 = ps4.Motor(LY);
+    int motor2 = ps4.Motor(RY);
+    
+    motor.setMotorPowers(1,motor1*currentS,motor2*currentS);
+  } 
+//  if(ps4.Button(L2)==1){ // did not find the proper degrees yet for a 90 degree pivot
+//    motor.resetEncoders(1);
+//    motor.setMotorDegrees(1,360,-70,360,70);delay(1200); 
+//  }
+//  if(ps4.Button(R2)==1){
+//    motor.resetEncoders(1);
+//    motor.setMotorDegrees(1,360,70,360,-70);delay(1200);
+//  }
+
+}
+
+void Shifter(){
+  if(ps4.Button(RIGHT)== 1 && shift < 4){
+    shift++;
+    delay(300);
+  }
+  if(ps4.Button(LEFT)== 1 && shift > 1){
+    shift--;
+    delay(300);
+  }
+  switch(shift){
+    case 1:
+      currentS = speed1;
+      ps4.setLED(BLUE);
+      break;
+    case 2:
+      currentS = speed2;
+      ps4.setLED(GREEN);
+      break;
+     case 3:
+      currentS = speed3;
+      ps4.setLED(YELLOW);
+      break;
+     case 4:
+      currentS = speed4;
+      ps4.setLED(RED);
+      break;
+  }
+}
