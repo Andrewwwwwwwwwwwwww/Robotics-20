@@ -19,19 +19,17 @@ void setup() {
 
   prizm.PrizmBegin();         // initialize the PRIZM controller
   Serial.begin(9600);
-  motor.setMotorInvert(1,2,1);
+  motor.setMotorInvert(1,1,1);
   ps4.setDeadZone (LEFT,10);
   ps4.setDeadZone(RIGHT,10);
+  delay(5000);
 }
 
 void loop() {    
   ps4.getPS4();
-  if(ps4.Connected){
-    if (prizm.readLineSensor(2)==1){
-      prizm.setMotorPower(1,100);delay(1000);
-    }
+  if ((ps4.Connected)&&(ps4.Button(CROSS)==0)){
+    if ((prizm.readLineSensor(2)==1)||(ps4.Button(R2)==1)){shoot();}
     BaseMove();
-    shoot();
     Shifter();
    } else {
     prizm.PrizmEnd();
@@ -47,7 +45,7 @@ void BaseMove(){
       int motor1 = ps4.Motor(LY);
       int motor2 = ps4.Motor(RY);
       
-      motor.setMotorPowers(1,motor1*currentS,motor2*currentS);
+      motor.setMotorPowers(1,motor2*currentS,motor1*currentS);
     }
  
   //  if(ps4.Button(L2)==1){ // did not find the proper degrees yet for a 90 degree pivot
@@ -90,9 +88,10 @@ void Shifter(){
 }
 
 void shoot(){
-  if (ps4.Button(R2)==1){
     prizm.setMotorPower(1,100);
-  } else {
+    delay(400);
+    prizm.setMotorPower(1,-100);
+    delay(397);
     prizm.setMotorPower(1,0);
-  }
+    prizm.setMotorPower(1,125);
 }
