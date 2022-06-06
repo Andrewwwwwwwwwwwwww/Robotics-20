@@ -1,9 +1,9 @@
 #include <PRIZM.h>    // include the PRIZM library in the sketch
-#include <TELEOP.h>
+#include <TELEOP.h>   //include the TELEOP library in the sketch
 
 PRIZM prizm;          // instantiate a PRIZM object “prizm” so we can use its functions
-PS4 ps4;
-EXPANSION motor;
+PS4 ps4;              // instantiate a PRIZM object “ps4” so we can use its functions
+EXPANSION motor;      // instantiate a PRIZM object “motor” so we can use its functions
 
 float detDis = 2.5;
 int servoPos = 120;
@@ -19,16 +19,16 @@ void setup() {
 
   prizm.PrizmBegin();         // initialize the PRIZM controller
   Serial.begin(9600);
-  motor.setMotorInvert(1,1,1);
+  motor.setMotorInvert(1,1,1);//inverts the motor input for motor 1
   ps4.setDeadZone (LEFT,10);
   ps4.setDeadZone(RIGHT,10);
-  delay(5000);
+  delay(5000);                // waits 5 sec before moving
 }
 
-void loop() {    
+void loop() {
   ps4.getPS4();
-  if ((ps4.Connected)&&(ps4.Button(CROSS)==0)){
-    if ((prizm.readLineSensor(2)==1)||(ps4.Button(R2)==1)){shoot();}
+  if ((ps4.Connected)&&(ps4.Button(CROSS)==0)){ // hitting X will shut down the robot immediately
+    if ((prizm.readLineSensor(2)==1)||(ps4.Button(R2)==1)){shoot();} //turns the track on when R2 is pressed
     BaseMove();
     Shifter();
    } else {
@@ -38,27 +38,18 @@ void loop() {
 
 void BaseMove(){
 
-     if(ps4.Button(UP)==1){
+     if(ps4.Button(UP)==1){ //when "up" is hit on the de-pad, it charges forward
         motor.setMotorSpeeds(1,720,720);delay(200);
     } else {
       
-      int motor1 = ps4.Motor(LY);
-      int motor2 = ps4.Motor(RY);
+      int motor1 = ps4.Motor(RY); //right joystick for the right motor
+      int motor2 = ps4.Motor(LY); //left joystick for the left motor
       
-      motor.setMotorPowers(1,motor2*currentS,motor1*currentS);
+      motor.setMotorPowers(1,motor1*currentS,motor2*currentS);
     }
- 
-  //  if(ps4.Button(L2)==1){ // did not find the proper degrees yet for a 90 degree pivot
-  //    motor.resetEncoders(1);
-  //    motor.setMotorDegrees(1,360,-70,360,70);delay(1200); 
-  //  }
-  //  if(ps4.Button(R2)==1){
-  //    motor.resetEncoders(1);
-  //    motor.setMotorDegrees(1,360,70,360,-70);delay(1200);
-  //  }
 }
 
-void Shifter(){
+void Shifter(){ //allows the user to change between 4 speeds (15%, 30%, 50%, 100%). Speed change using the side buttons on the de-pad
   if(ps4.Button(RIGHT)== 1 && shift < 4){
     shift++;
     delay(300);
@@ -68,26 +59,26 @@ void Shifter(){
     delay(300);
   }
   switch(shift){
-    case 1:
+    case 1: //speed 1, 15% of the speed
       currentS = speed1;
       ps4.setLED(BLUE);
       break;
-    case 2:
+    case 2://speed 2, 30% of the speed
       currentS = speed2;
       ps4.setLED(GREEN);
       break;
-     case 3:
+     case 3://speed 3, 50% of the speed
       currentS = speed3;
       ps4.setLED(YELLOW);
       break;
-     case 4:
+     case 4://speed 4, 100% of the speed
       currentS = speed4;
       ps4.setLED(RED);
       break;
   }
 }
 
-void shoot(){
+void shoot(){ //turns the track on, lauching the projectile
     prizm.setMotorPower(1,100);
     delay(400);
     prizm.setMotorPower(1,-100);
